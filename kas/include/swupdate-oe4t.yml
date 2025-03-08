@@ -1,0 +1,10 @@
+header:
+  version: 17
+  includes:
+    - repo: tegra-demo-distro
+      file: layers/meta-tegrademo/dynamic-layers/meta-swupdate/conf/kas/swupdate-oe4t.yml 
+
+repos:
+  tegra-demo-distro:
+    url: https://github.com/trellis-logic/tegra-demo-distro
+    branch: kas-fixes

@@ -1,0 +1,6 @@
+header:
+  version: 17
+
+defaults:
+  repos:
+    branch: master
