@@ -6,5 +6,4 @@ header:
 
 repos:
   tegra-demo-distro:
-    url: https://github.com/trellis-logic/tegra-demo-distro
-    branch: kas-fixes
+    url: https://github.com/OE4T/tegra-demo-distro.git
