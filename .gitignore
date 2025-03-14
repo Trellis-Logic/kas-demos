@@ -1,4 +1,1 @@
-build/
-layers/
-repos/
-tegra-demo-distro/
+build*/

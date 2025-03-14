@@ -11,7 +11,11 @@ pip3 install kas
 ## Usage
 
 ```
-kas build kas/file.yml
+config=myconfig
+mkdir build-${config}
+cd build-${config}
+kas build --update ../kas/${config}.yml
 ```
 
-where file.yml is a specific build configuration to demo
+where config is a specific kas configuration to demo
+from the list of .yml files in the [kas](kas) subdir
