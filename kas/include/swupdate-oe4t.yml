@@ -1,9 +1,17 @@
 header:
   version: 17
   includes:
-    - repo: tegra-demo-distro
+    - repo: tegra-demo-distro-master
       file: layers/meta-tegrademo/dynamic-layers/meta-swupdate/conf/kas/swupdate-oe4t.yml 
 
 repos:
+  tegra-demo-distro-master:
+    url: https://github.com/OE4T/tegra-demo-distro.git
+    branch: master
+    layers:
+      layers/meta-tegra-suppport: disabled
+      layers/meta-tegrademo: disabled
+      layers/meta-demo-ci: disabled
+
   tegra-demo-distro:
     url: https://github.com/OE4T/tegra-demo-distro.git
