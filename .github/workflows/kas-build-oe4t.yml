@@ -9,28 +9,66 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  ARTIFACT_RETENTION_DAYS_DEFAULT: 1
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: self-hosted
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
+      - name: Set env vars
+        run: |
+          if [ -n "${SSTATE_DIR}" ]; then
+            export SSTATE_DIR=${SSTATE_DIR}/swupdate-oe4t-master
+            echo "SSTATE_DIR=${SSTATE_DIR}" >> "$GITHUB_ENV"
+          fi
+          echo "Running kas build with SSTATE_DIR=${SSTATE_DIR} DL_DIR=${DL_DIR}"
+          if [ -n "${ARTIFACT_RETENTION_DAYS}" ]; then
+            export ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS_DEFAULT}
+            echo "ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS}" >> "$GITHUB_ENV"
+          fi
+          echo "Using ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS}"
+ 
       - name: Build kas swupdate demo
-        run: kas-container build kas/swupdate-oe4t.yml
+        run: |
+          export buildproj=swupdate-oe4t
+          echo "buildproj=${buildproj}" >> "$GITHUB_ENV"
+          echo "Making build directory ${buildproj}"
+          mkdir ${buildproj}
+          echo "Changing to build directory ${buildproj}"
+          cd ${buildproj}
+          echo "running kas container build for ${buildproj}"
+          kas-container build ../kas/${buildproj}.yml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: ${{ env.buildproj }}
           path: |
-           build/tmp/deploy/images/*/*.tegraflash.tar.zst
-           build/tmp/deploy/images/*/*.swu
-          retention-days: 2
+           ${{ env.buildproj}}/build/tmp/deploy/images/*/*.tegraflash.tar.zst
+           ${{ env.buildproj}}/build/tmp/deploy/images/*/*.swu
+           retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
         
-        
+      - name: Build kas swupdate rootfs overlay demo
+        run: |
+          if [ -n "${SSTATE_DIR}" ]; then
+            export SSTATE_DIR=${SSTATE_DIR}/swupdate-oe4t-master
+          fi
+          echo "Running kas build with SSTATE_DIR=${SSTATE_DIR} DL_DIR=${DL_DIR}"
+          export buildproj=swupdate-rootfs-overlay-oe4t
+          echo "buildproj=${buildproj}" >> "$GITHUB_ENV"
+          mkdir ${buildproj}
+          cd ${buildproj}
+          kas-container build ../kas/${buildproj}.yml
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.buildproj }}
+          path: |
+           ${{ env.buildproj }}/build/tmp/deploy/images/*/*.tegraflash.tar.zst
+           ${{ env.buildproj }}/build/tmp/deploy/images/*/*.swu
+           retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
