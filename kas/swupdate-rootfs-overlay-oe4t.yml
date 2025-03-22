@@ -1,0 +1,17 @@
+header:
+  version: 17
+  includes:
+    - kas/include/swupdate-oe4t.yml
+    - kas/include/master.yml
+
+repos:
+  kas-demos:
+    layers:
+      layers/meta-trellis-swupdate-rootfs-overlay-oe4t:
+
+local_conf_header:
+  swupdate-tegra-overlay-demo: |
+    IMAGE_CLASSES += "tegra_dataimg"
+    IMAGE_FSTYPES += "tegra_dataimg"
+    EXTRA_IMAGE_FEATURES = "read-only-rootfs allow-empty-password empty-root-password allow-root-login"
+    FILESYSTEM_PERMS_TABLES:remove = "fs-perms-volatile-log.txt"

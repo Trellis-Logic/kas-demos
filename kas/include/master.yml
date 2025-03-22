@@ -1,6 +1,12 @@
 header:
   version: 17
 
+repos:
+  meta-swupdate:
+    url: https://github.com/Trellis-Logic/meta-swupdate.git
+    branch: fix-hash-issues
+
 defaults:
   repos:
     branch: master
+
