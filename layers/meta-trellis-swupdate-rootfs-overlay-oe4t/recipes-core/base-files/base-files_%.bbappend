@@ -21,13 +21,13 @@ do_install:append() {
     sed -e"s!@TEGRA_DATA_PART_LABEL@!${TEGRA_DATA_PART_LABEL}!g" -i ${S}/additions.fstab
     cat ${S}/additions.fstab >> ${D}${sysconfdir}/fstab
     ln -s ../data/log ${D}${localstatedir}/log
-    install -d 0755 ${D}${sysconfdir}/systemd/systemd-networkd-persistent-storage.service.d/
-    install -m 0644 10-wait-for-var-volatile-lib.conf ${D}${sysconfdir}/systemd/systemd-networkd-persistent-storage.service.d/
-    install -d 0755 ${D}${sysconfdir}/systemd/systemd-timesyncd.service.d/
-    install -m 0644 10-wait-for-var-volatile-lib.conf ${D}${sysconfdir}/systemd/systemd-timesyncd.service.d/
-    install -d 0755 ${D}${sysconfdir}/systemd/data-overlay-setup.service.d/
+    install -d 0755 ${D}${sysconfdir}/systemd/system/systemd-networkd-persistent-storage.service.d/
+    install -m 0644 10-wait-for-var-volatile-lib.conf ${D}${sysconfdir}/systemd/system/systemd-networkd-persistent-storage.service.d/
+    install -d 0755 ${D}${sysconfdir}/systemd/system/systemd-timesyncd.service.d/
+    install -m 0644 10-wait-for-var-volatile-lib.conf ${D}${sysconfdir}/systemd/system/systemd-timesyncd.service.d/
+    install -d 0755 ${D}${sysconfdir}/systemd/system/data-overlay-setup.service.d/
     # Add the /data/log dir in case it's not there already (upgrade scenario)
-    install -m 0644 10-add-data-log-dir.conf ${D}${sysconfdir}/systemd/data-overlay-setup.service.d/
+    install -m 0644 10-add-data-log-dir.conf ${D}${sysconfdir}/systemd/system/data-overlay-setup.service.d/
 }
 
 RDEPENDS:${PN} += "data-overlay-setup"
