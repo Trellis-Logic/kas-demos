@@ -7,10 +7,6 @@ SRC_URI = "\
     file://test-factory-reset.sh \
 "
 
-S = "${WORKDIR}/sources"
-UNPACKDIR = "${S}"
-B = "${WORKDIR}/build"
-
 UNPACKDIR_COMPAT = "${@'${WORKDIR}' if not d.getVar('UNPACKDIR') else d.getVar('UNPACKDIR', expand=True)}"
 
 do_install:append() {
