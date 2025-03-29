@@ -9,7 +9,7 @@ UNPACKDIR_COMPAT = "${@'${WORKDIR}' if not d.getVar('UNPACKDIR') else d.getVar('
 do_install:append() {
     # target /etc/ssh/keys for readonly mount, we will overlay this dir
     sed -i -r -e 's!HostKey\s+/var/run/ssh!HostKey ${sysconfdir}/ssh/keys!g' ${D}${sysconfdir}/ssh/sshd_config_readonly
-    ln -s ../../data/ssh/keys ${D}${sysconfdir}/ssh/keys
+    ln -s ../../data/symlinks/etc/ssh/keys ${D}${sysconfdir}/ssh/keys
     install -d 0755 ${D}${sysconfdir}/systemd/system/data-overlay-setup.service.d
     install ${UNPACKDIR_COMPAT}/10-add-data-ssh-keys-dir.conf -m 0644 ${D}${sysconfdir}/systemd/system/data-overlay-setup.service.d/
     install -d 0755 ${D}${sysconfdir}/systemd/system/sshdgenkeys.service.d
