@@ -15,14 +15,17 @@ env:
 jobs:
   build:
     runs-on: self-hosted
-
+    strategy:
+      matrix:
+        buildproj: [ swupdate-oe4t, swupdate-rootfs-overlay-oe4t ]
+        branch: [ kirkstone, master ]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set env vars
         run: |
           if [ -n "${SSTATE_DIR}" ]; then
-            export SSTATE_DIR=${SSTATE_DIR}/swupdate-oe4t-master
+            export SSTATE_DIR=${SSTATE_DIR}/swupdate-oe4t-${{ matrix.branch }}
             echo "SSTATE_DIR=${SSTATE_DIR}" >> "$GITHUB_ENV"
           fi
           echo "Running kas build with SSTATE_DIR=${SSTATE_DIR} DL_DIR=${DL_DIR}"
@@ -32,43 +35,23 @@ jobs:
           fi
           echo "Using ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS}"
  
-      - name: Build kas swupdate demo
+      - name: Build ${{ matrix.buildproj }} branch ${{ matrix.branch }}
         run: |
-          export buildproj=swupdate-oe4t
-          echo "buildproj=${buildproj}" >> "$GITHUB_ENV"
-          echo "Making build directory ${buildproj}"
-          mkdir ${buildproj}
-          echo "Changing to build directory ${buildproj}"
-          cd ${buildproj}
-          echo "running kas container build for ${buildproj}"
-          kas-container build ../kas/${buildproj}.yml
+          export builddir=${{ matrix.buildproj }}-${{ matrix.branch }}
+          echo "builddir=${builddir}" >> "$GITHUB_ENV"
+          echo "Making build directory ${builddir}"
+          mkdir ${builddir}
+          echo "Changing to build directory ${builddir}"
+          cd ${builddir}
+          echo "running kas container build for ${{ matrix.buildproj }} on branch ${{ matrix.branch }}"
+          kas-container build ../kas/${{ matrix.buildproj}}.yml:../kas/include/${{ matrix.branch }}.yml
 
-      - name: Upload artifacts
+      - name: Upload artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.buildproj }}
+          name: ${{ matrix.buildproj }}-${{ matrix.branch }}
           path: |
-           ${{ env.buildproj}}/build/tmp/deploy/images/*/*.tegraflash.tar.zst
-           ${{ env.buildproj}}/build/tmp/deploy/images/*/*.swu
+           ${{ env.builddir }}/build/tmp/deploy/images/*/*.tegraflash.tar.*
+           ${{ env.builddir }}/build/tmp/deploy/images/*/*.swu
            retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
-        
-      - name: Build kas swupdate rootfs overlay demo
-        run: |
-          if [ -n "${SSTATE_DIR}" ]; then
-            export SSTATE_DIR=${SSTATE_DIR}/swupdate-oe4t-master
-          fi
-          echo "Running kas build with SSTATE_DIR=${SSTATE_DIR} DL_DIR=${DL_DIR}"
-          export buildproj=swupdate-rootfs-overlay-oe4t
-          echo "buildproj=${buildproj}" >> "$GITHUB_ENV"
-          mkdir ${buildproj}
-          cd ${buildproj}
-          kas-container build ../kas/${buildproj}.yml
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.buildproj }}
-          path: |
-           ${{ env.buildproj }}/build/tmp/deploy/images/*/*.tegraflash.tar.zst
-           ${{ env.buildproj }}/build/tmp/deploy/images/*/*.swu
-           retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}

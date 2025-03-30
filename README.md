@@ -21,6 +21,18 @@ where `${project}` is a specific kas configuration to demo
 from the list of .yml files in the [kas](kas) subdir
 and outlined below
 
+## Building Alternate Branches
+
+The default branch build configuration is for master/main on each project.
+
+To build for alternate branches, use the `kas/include/${branch}` file on
+the config file list as outlined in the [kas build commandline instructions](https://kas.readthedocs.io/en/latest/userguide/project-configuration.html#including-configuration-files-via-the-command-line)
+
+So for example, to build the swupdate-oe4t project for kirkstone branch, use
+```
+kas build --update ../kas/swupdate-oe4t.yml:../kas/include/kirkstone.yml
+```
+
 ## Demo Projects
 
 ### swupdate-oe4t

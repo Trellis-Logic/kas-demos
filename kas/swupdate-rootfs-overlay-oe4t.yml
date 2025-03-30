@@ -15,3 +15,4 @@ local_conf_header:
     IMAGE_FSTYPES += "tegra_dataimg"
     EXTRA_IMAGE_FEATURES = "read-only-rootfs allow-empty-password empty-root-password allow-root-login"
     FILESYSTEM_PERMS_TABLES:remove = "fs-perms-volatile-log.txt"
+    IMAGE_INSTALL:append = " test-rootfs-overlay"
