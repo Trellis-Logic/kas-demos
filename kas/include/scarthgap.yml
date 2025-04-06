@@ -1,0 +1,21 @@
+header:
+  version: 17
+
+repos:
+
+  meta-swupdate:
+    url: https://github.com/sbabic/meta-swupdate.git
+    branch: scarthgap
+
+  kas-demos:
+    layers:
+      layers/meta-trellis-swupdate-rootfs-overlay-oe4t: disabled
+
+  kas-demos-clone:
+    url: https://github.com/Trellis-Logic/kas-demos.git
+    layers:
+      layers/meta-trellis-swupdate-rootfs-overlay-oe4t:
+
+defaults:
+  repos:
+    branch: scarthgap

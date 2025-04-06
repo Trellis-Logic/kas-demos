@@ -1,0 +1,17 @@
+header:
+  version: 17
+  includes:
+    - kas/include/scarthgap.yml
+
+repos:
+  meta-tegra:
+    branch: scarthgap-l4t-r35.x
+
+  tegra-demo-distro:
+    branch: scarthgap-l4t-r35.x
+
+  meta-tegra-community:
+    branch: scarthgap-l4t-r35.x
+ 
+  kas-demos-clone:
+    branch: scarthgap-l4t-r35.x
