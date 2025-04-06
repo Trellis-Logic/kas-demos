@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         buildproj: [ swupdate-oe4t, swupdate-rootfs-overlay-oe4t ]
-        branch: [ kirkstone, master ]
+        branch: [ kirkstone, scarthgap-l4t-r35.x, scarthgap, master ]
     steps:
       - uses: actions/checkout@v4
 
