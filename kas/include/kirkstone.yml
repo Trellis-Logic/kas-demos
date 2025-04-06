@@ -6,10 +6,6 @@ repos:
     url: https://github.com/Trellis-Logic/tegra-demo-distro.git
     branch: kirkstone+swupdate
 
-  meta-tegra:
-    url: https://github.com/Trellis-Logic/meta-tegra.git
-    branch: kirkstone+compat-spec-fix
-
   meta-swupdate:
     url: https://github.com/sbabic/meta-swupdate.git
     branch: kirkstone
