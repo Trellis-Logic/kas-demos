@@ -21,6 +21,9 @@ repos:
     layers:
       layers/meta-trellis-swupdate-rootfs-overlay-oe4t:
 
+  meta-tegra:
+    branch: wip-scarthgap-l4t-r36.4.3
+
 defaults:
   repos:
     branch: scarthgap

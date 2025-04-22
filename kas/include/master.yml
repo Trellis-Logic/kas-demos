@@ -2,11 +2,6 @@ header:
   version: 17
 
 repos:
-  tegra-demo-distro:
-    url: https://github.com/Trellis-Logic/tegra-demo-distro.git
-    branch: master+esp-partition-upgrade
-
-
   meta-swupdate:
     url: https://github.com/Trellis-Logic/meta-swupdate.git
     branch: fix-hash-issues
