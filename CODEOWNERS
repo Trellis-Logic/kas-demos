@@ -1,0 +1,2 @@
+# The following line assigns ownership of all files in the .github/workflows directory to @security-team
+.github/workflows/* @owners
