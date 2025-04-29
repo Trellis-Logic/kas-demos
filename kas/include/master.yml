@@ -6,6 +6,11 @@ repos:
     url: https://github.com/Trellis-Logic/meta-swupdate.git
     branch: fix-hash-issues
 
+  tegra-demo-distro:
+    url: https://github.com/Trellis-Logic/tegra-demo-distro.git
+    branch: master+swupdate-description-fix
+
+
 defaults:
   repos:
     branch: master
