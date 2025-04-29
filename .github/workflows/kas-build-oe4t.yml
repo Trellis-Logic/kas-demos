@@ -10,7 +10,10 @@ on:
   workflow_dispatch:
 
 env:
-  ARTIFACT_RETENTION_DAYS_DEFAULT: 1
+  ARTIFACT_RETENTION_DAYS_DEFAULT: 3
+  MACHINE: jetson-orin-nano-devkit-nvme
+  SWUPDATE_CORE_IMAGE_NAME: demo-image-base
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
@@ -49,9 +52,10 @@ jobs:
       - name: Upload artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.buildproj }}-${{ matrix.branch }}
+          name: ${{ matrix.buildproj }}-${{ matrix.branch }}-${{ env.SWUPDATE_CORE_IMAGE_NAME }}-${{ env.MACHINE }}
           path: |
-           ${{ env.builddir }}/build/tmp/deploy/images/*/*.tegraflash.tar.*
-           ${{ env.builddir }}/build/tmp/deploy/images/*/*.swu
+           ${{ env.builddir }}/build/tmp/deploy/images/${{ env.MACHINE }}/${{ env.SWUPDATE_CORE_IMAGE_NAME}}-${{ env.MACHINE }}.tegraflash.tar.*
+           ${{ env.builddir }}/build/tmp/deploy/images/${{ env.MACHINE }}/${{ env.SWUPDATE_CORE_IMAGE_NAME}}-${{ env.MACHINE }}.rootfs.tegraflash.tar.*
+           ${{ env.builddir }}/build/tmp/deploy/images/${{ env.MACHINE }}/${{ env.SWUPDATE_CORE_IMAGE_NAME}}-${{ env.MACHINE }}.swu
            retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
 

@@ -3,6 +3,11 @@ header:
 
 repos:
 
+  tegra-demo-distro:
+    url: https://github.com/Trellis-Logic/tegra-demo-distro.git
+    branch: scarthgap+esp-partition-upgrade
+
+
   meta-swupdate:
     url: https://github.com/sbabic/meta-swupdate.git
     branch: scarthgap
@@ -15,6 +20,9 @@ repos:
     url: https://github.com/Trellis-Logic/kas-demos.git
     layers:
       layers/meta-trellis-swupdate-rootfs-overlay-oe4t:
+
+  meta-tegra:
+    branch: wip-scarthgap-l4t-r36.4.3
 
 defaults:
   repos:
