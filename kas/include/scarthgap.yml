@@ -22,7 +22,12 @@ repos:
       layers/meta-trellis-swupdate-rootfs-overlay-oe4t:
 
   meta-tegra:
-    branch: wip-scarthgap-l4t-r36.4.3
+    branch: scarthgap
+
+  meta-tegra-community:
+    url: https://github.com/Trellis-Logic/meta-tegra-community.git
+    branch: scarthgap+ichergui/wip-holoscan-sdk
+
 
 defaults:
   repos:

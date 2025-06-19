@@ -10,6 +10,11 @@ repos:
     url: https://github.com/Trellis-Logic/tegra-demo-distro.git
     branch: master+swupdate-description-fix
 
+  meta-tegra-community:
+    url: git@github.com:ichergui/nonpublic-meta-tegra-community.git
+    branch: ichergui/wip-holoscan-sdk
+
+
 
 defaults:
   repos:

@@ -1,0 +1,9 @@
+header:
+  version: 17
+  includes:
+    - kas/swupdate-rootfs-overlay-oe4t.yml
+    - kas/include/master.yml
+
+local_conf_header:
+  deepstream-demo: |
+    IMAGE_INSTALL:append = " triton-client triton-server triton-python-backend triton-tensorrt-backend deepstream-7.1 deepstream-7.1-samples"
