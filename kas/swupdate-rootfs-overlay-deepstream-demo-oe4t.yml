@@ -6,4 +6,15 @@ header:
 
 local_conf_header:
   deepstream-demo: |
+    IMAGE_INSTALL:append = " deepstream-7.1 deepstream-7.1-samples"
     IMAGE_INSTALL:append = " triton-client triton-server triton-python-backend triton-tensorrt-backend deepstream-7.1 deepstream-7.1-samples"
+    EXTRA_IMAGE_FEATURES += "tools-debug dbg-pkgs"
+    TEGRA_SWUPDATE_BOOTLOADER_INSTALL_ONLY_IF_DIFFERENT = "true"
+    # Customize
+    SWUPDATE_CORE_IMAGE_NAME = "demo-image-sato"
+    PACKAGECONFIG:remove:pn-xserver-nodm-init = "blank"
+    IMAGE_INSTALL:append = " gstreamer1.0-plugins-nvvideosinks kernel-module-uvcvideo"
+    PACKAGECONFIG:pn-deepstream-7.1 = "triton"
+    #PACKAGECONFIG:pn-triton-server = "logging http gpu tensorrt metrics metrics_cpu stats ensemble grpc"
+    #PACKAGECONFIG:pn-triton-server = "logging http gpu tensorrt grpc"
+    #PACKAGECONFIG:pn-triton-common = "protobuf rapidjson grpc"

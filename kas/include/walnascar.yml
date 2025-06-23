@@ -1,0 +1,35 @@
+header:
+  version: 17
+
+repos:
+
+  tegra-demo-distro:
+    url: https://github.com/Trellis-Logic/tegra-demo-distro.git
+    branch: master+esp-partition-upgrade
+
+
+  meta-swupdate:
+    url: https://github.com/sbabic/meta-swupdate.git
+    url: https://github.com/Trellis-Logic/meta-swupdate.git
+    branch: fix-hash-issues
+
+  kas-demos:
+    layers:
+      layers/meta-trellis-swupdate-rootfs-overlay-oe4t: disabled
+
+  kas-demos-clone:
+    url: https://github.com/Trellis-Logic/kas-demos.git
+    layers:
+      layers/meta-trellis-swupdate-rootfs-overlay-oe4t:
+    branch: main
+
+  meta-tegra:
+    branch: walnascar
+
+  meta-tegra-community:
+    url: git@github.com:ichergui/nonpublic-meta-tegra-community.git
+    branch: ichergui/wip-holoscan-sdk
+
+defaults:
+  repos:
+    branch: walnascar
