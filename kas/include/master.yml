@@ -11,8 +11,8 @@ repos:
     branch: master+swupdate-description-fix
 
   meta-tegra-community:
-    url: git@github.com:ichergui/nonpublic-meta-tegra-community.git
-    branch: ichergui/wip-holoscan-sdk
+    url: https://github.com/ichergui/meta-tegra-community.git
+    branch: ichergui/wip-holoscan-sdk-and-triton
 
 
 

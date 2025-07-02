@@ -7,7 +7,7 @@ header:
 local_conf_header:
   deepstream-demo: |
     IMAGE_INSTALL:append = " deepstream-7.1 deepstream-7.1-samples"
-    IMAGE_INSTALL:append = " triton-client triton-server triton-python-backend triton-tensorrt-backend deepstream-7.1 deepstream-7.1-samples"
+    IMAGE_INSTALL:append = " triton-client triton-server triton-onnxruntime-backend triton-python-backend triton-tensorrt-backend deepstream-7.1 deepstream-7.1-samples"
     EXTRA_IMAGE_FEATURES += "tools-debug dbg-pkgs"
     TEGRA_SWUPDATE_BOOTLOADER_INSTALL_ONLY_IF_DIFFERENT = "true"
     # Customize
