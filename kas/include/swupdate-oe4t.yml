@@ -15,3 +15,8 @@ repos:
 
   tegra-demo-distro:
     url: https://github.com/OE4T/tegra-demo-distro.git
+
+local_conf_header:
+  swupdate-oe4t-includes: |
+    INHERIT += "rm_work"
+
