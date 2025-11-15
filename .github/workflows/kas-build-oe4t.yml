@@ -47,7 +47,7 @@ jobs:
           echo "Changing to build directory ${builddir}"
           cd ${builddir}
           echo "running kas container build for ${{ matrix.buildproj }} on branch ${{ matrix.branch }}"
-          kas-container build ../kas/${{ matrix.buildproj}}.yml:../kas/include/${{ matrix.branch }}.yml
+          kas-container build ../kas/${{ matrix.buildproj}}-${{ matrix.branch }}.yml
 
       - name: Upload artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
         uses: actions/upload-artifact@v4

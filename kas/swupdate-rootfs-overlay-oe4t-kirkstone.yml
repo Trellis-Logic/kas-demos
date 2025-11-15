@@ -1,0 +1,5 @@
+header:
+  version: 17
+  includes:
+    - kas/include/swupdate-rootfs-overlay-oe4t.yml
+    - kas/include/kirkstone.yml
