@@ -2,7 +2,6 @@ header:
   version: 17
   includes:
     - kas/include/swupdate-oe4t.yml
-    - kas/include/master.yml
 
 repos:
   kas-demos:

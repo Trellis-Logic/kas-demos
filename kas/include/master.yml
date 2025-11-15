@@ -1,6 +1,10 @@
 header:
   version: 17
 
+  includes:
+    - repo: tegra-demo-distro-master
+      file: layers/meta-tegrademo/conf/kas/include/tegra-demo-distro-oecore.yml 
+ 
 defaults:
   repos:
     branch: master
