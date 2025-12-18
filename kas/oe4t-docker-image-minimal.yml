@@ -1,0 +1,10 @@
+header:
+  version: 17
+  includes:
+    - kas/include/swupdate-rootfs-overlay-oe4t.yml
+    - kas/include/scarthgap.yml
+
+local_conf_header:
+  docker-demo-image:
+    SWUPDATE_CORE_IMAGE_NAME = "demo-image-docker-minimal"
+ 
