@@ -19,3 +19,4 @@ inherit features_check
 REQUIRED_DISTRO_FEATURES = "x11 virtualization"
 
 CORE_IMAGE_BASE_INSTALL += "nvidia-docker"
+CORE_IMAGE_BASE_INSTALL += "tailscale"

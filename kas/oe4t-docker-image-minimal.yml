@@ -4,6 +4,11 @@ header:
     - kas/include/swupdate-rootfs-overlay-oe4t.yml
     - kas/include/scarthgap.yml
 
+repos:
+  meta-tailscale:
+    url: https://github.com/ChristophHandschuh/meta-tailscale.git
+    branch: master
+
 local_conf_header:
   docker-demo-image:
     SWUPDATE_CORE_IMAGE_NAME = "demo-image-docker-minimal"
