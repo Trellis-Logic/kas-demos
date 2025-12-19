@@ -4,6 +4,8 @@ header:
     - kas/include/swupdate-rootfs-overlay-oe4t.yml
     - kas/include/scarthgap.yml
 
+machine: p3768-0000-p3767-0004
+
 repos:
   meta-tailscale:
     url: https://github.com/ChristophHandschuh/meta-tailscale.git
