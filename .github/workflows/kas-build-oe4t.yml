@@ -13,6 +13,8 @@ env:
   ARTIFACT_RETENTION_DAYS_DEFAULT: 3
   MACHINE: jetson-orin-nano-devkit-nvme
   SWUPDATE_CORE_IMAGE_NAME: demo-image-base
+  SSTATE_DIR_BASE: /srv/yocto/sstate-cache
+  DL_DIR_DEFAULT: /srv/yocto/downloads
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -27,15 +29,19 @@ jobs:
 
       - name: Set env vars
         run: |
-          if [ -n "${SSTATE_DIR}" ]; then
-            export SSTATE_DIR=${SSTATE_DIR}/swupdate-oe4t-${{ matrix.branch }}
-            echo "SSTATE_DIR=${SSTATE_DIR}" >> "$GITHUB_ENV"
+          if [ -z "${DL_DIR}" ]; then
+            export DL_DIR=${DL_DIR_DEFAULT}
+          fi
+          if [ -z "${SSTATE_DIR}" ]; then
+            export SSTATE_DIR=${SSTATE_DIR_BASE}/swupdate-oe4t-${{ matrix.branch }}
+          fi
+          if [ -z "${ARTIFACT_RETENTION_DAYS}" ]; then
+            export ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS_DEFAULT}
           fi
           echo "Running kas build with SSTATE_DIR=${SSTATE_DIR} DL_DIR=${DL_DIR}"
-          if [ -n "${ARTIFACT_RETENTION_DAYS}" ]; then
-            export ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS_DEFAULT}
-            echo "ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS}" >> "$GITHUB_ENV"
-          fi
+          echo "DL_DIR=${DL_DIR}" >> "$GITHUB_ENV"
+          echo "SSTATE_DIR=${SSTATE_DIR}" >> "$GITHUB_ENV"
+          echo "ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS}" >> "$GITHUB_ENV"
           echo "Using ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS}"
  
       - name: Build ${{ matrix.buildproj }} branch ${{ matrix.branch }}
