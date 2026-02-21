@@ -20,6 +20,10 @@ repos:
     layers:
       layers/meta-trellis-swupdate-rootfs-overlay-oe4t:
 
+  meta-tegra:
+     url: https://github.com/madisongh/meta-tegra-wip.git
+     branch: wip-scarthgap-r36.5.0
+
 defaults:
   repos:
     branch: scarthgap

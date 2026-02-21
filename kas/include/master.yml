@@ -3,8 +3,14 @@ header:
 
   includes:
     - repo: tegra-demo-distro-master
-      file: layers/meta-tegrademo/conf/kas/include/tegra-demo-distro-oecore.yml 
- 
+      file: layers/meta-tegrademo/conf/kas/include/tegra-demo-distro-oecore.yml
+
+repos:
+   meta-tegra:
+     url: https://github.com/madisongh/meta-tegra-wip.git
+     branch: wip-l4t-r36.5.0
+
+
 defaults:
   repos:
     branch: master
