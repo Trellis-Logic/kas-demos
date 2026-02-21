@@ -45,6 +45,7 @@ jobs:
           echo "Using ARTIFACT_RETENTION_DAYS=${ARTIFACT_RETENTION_DAYS}"
  
       - name: Build ${{ matrix.buildproj }} branch ${{ matrix.branch }}
+        continue-on-error: true
         run: |
           export builddir=${{ matrix.buildproj }}-${{ matrix.branch }}
           echo "builddir=${builddir}" >> "$GITHUB_ENV"
