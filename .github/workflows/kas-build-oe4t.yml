@@ -162,11 +162,15 @@ jobs:
               fi
             done
 
+            # Only one SWU is needed. Prefer a stable-name symlink if present.
             if [ ${#swu_symlinks[@]} -gt 0 ]; then
-              swu_files+=("${swu_symlinks[@]}")
+              swu_pick="${swu_symlinks[0]}"
             else
-              swu_files+=("${swu_regulars[@]}")
+              swu_pick="${swu_regulars[0]}"
             fi
+
+            echo "Selected SWU: ${swu_pick}"
+            swu_files+=("${swu_pick}")
           fi
 
           if [ ${missing} -ne 0 ]; then
