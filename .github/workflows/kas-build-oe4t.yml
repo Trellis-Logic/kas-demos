@@ -56,13 +56,110 @@ jobs:
           echo "running kas container build for ${{ matrix.buildproj }} on branch ${{ matrix.branch }}"
           kas-container build ../kas/${{ matrix.buildproj}}-${{ matrix.branch }}.yml
 
+      - name: Debug build directory tree for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
+        if: always()
+        run: |
+          echo "builddir=${builddir:-<unset>}"
+          if [ -n "${builddir:-}" ] && [ -d "${builddir}" ]; then
+            if command -v tree >/dev/null 2>&1; then
+              tree -a -L 4 "${builddir}" || true
+            else
+              echo "tree not installed; using find"
+              find "${builddir}" -maxdepth 4 -print || true
+            fi
+          else
+            echo "Build directory not found: ${builddir:-<unset>}"
+          fi
+
+      - name: Stage artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
+        run: |
+          set -euo pipefail
+
+          : "${builddir:?builddir env var not set (expected from previous step)}"
+
+          deploy_dir="${builddir}/build/tmp/deploy/images/${{ env.MACHINE }}"
+          staging_dir="${builddir}/artifact-staging"
+
+          mkdir -p "${staging_dir}"
+
+          image_prefix="${SWUPDATE_CORE_IMAGE_NAME}-${MACHINE}"
+
+          shopt -s nullglob
+
+          files=()
+
+          # Only one of these should exist depending on branch age:
+          # - newer branches: ${image_prefix}.rootfs.tegraflash.tar.*
+          # - older branches: ${image_prefix}.tegraflash.tar.*
+          tegra_rootfs_candidates=("${deploy_dir}/${image_prefix}.rootfs.tegraflash.tar."*)
+          tegra_plain_candidates=("${deploy_dir}/${image_prefix}.tegraflash.tar."*)
+
+          if [ ${#tegra_rootfs_candidates[@]} -gt 0 ]; then
+            if [ ${#tegra_plain_candidates[@]} -gt 0 ]; then
+              echo "Both rootfs and legacy tegraflash artifacts exist; preferring rootfs.*"
+            fi
+            tegra_candidates=("${tegra_rootfs_candidates[@]}")
+          else
+            tegra_candidates=("${tegra_plain_candidates[@]}")
+          fi
+
+          # Prefer symlinks (Yocto often creates stable-name symlinks -> timestamped real files).
+          tegra_symlinks=()
+          tegra_regulars=()
+          for f in "${tegra_candidates[@]}"; do
+            if [ -L "${f}" ]; then
+              tegra_symlinks+=("${f}")
+            else
+              tegra_regulars+=("${f}")
+            fi
+          done
+          if [ ${#tegra_symlinks[@]} -gt 0 ]; then
+            files+=("${tegra_symlinks[@]}")
+          else
+            files+=("${tegra_regulars[@]}")
+          fi
+
+          # For .swu, include the stable-name file if it exists (symlink or regular file).
+          swu_candidate="${deploy_dir}/${image_prefix}.swu"
+          if [ -e "${swu_candidate}" ] || [ -L "${swu_candidate}" ]; then
+            files+=("${swu_candidate}")
+          fi
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No tegraflash.tar.* or .swu files found for ${image_prefix} under: ${deploy_dir}"
+            echo "Directory tree (depth 6) for ${builddir}:"
+            if command -v tree >/dev/null 2>&1; then
+              tree -a -L 6 "${builddir}" || true
+            else
+              echo "tree not installed; using find"
+              find "${builddir}" -maxdepth 6 -print || true
+            fi
+            exit 1
+          fi
+
+          for f in "${files[@]}"; do
+            base="$(basename "${f}")"
+            dest="${staging_dir}/${base}"
+
+            if [ -e "${dest}" ]; then
+              echo "Duplicate artifact filename after flattening: ${base}"
+              echo "Source file: ${f}"
+              exit 1
+            fi
+
+            # -L/--dereference: if ${f} is a symlink, copy the linked-to file contents
+            # while keeping the symlink's filename in the staged artifact.
+            cp -vL "${f}" "${dest}"
+          done
+
+          echo "Staged artifacts:"
+          ls -la "${staging_dir}"
+
       - name: Upload artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.buildproj }}-${{ matrix.branch }}-${{ env.SWUPDATE_CORE_IMAGE_NAME }}-${{ env.MACHINE }}
-          path: |
-           ${{ env.builddir }}/build/tmp/deploy/images/${{ env.MACHINE }}/${{ env.SWUPDATE_CORE_IMAGE_NAME}}-${{ env.MACHINE }}.tegraflash.tar.*
-           ${{ env.builddir }}/build/tmp/deploy/images/${{ env.MACHINE }}/${{ env.SWUPDATE_CORE_IMAGE_NAME}}-${{ env.MACHINE }}.rootfs.tegraflash.tar.*
-           ${{ env.builddir }}/build/tmp/deploy/images/${{ env.MACHINE }}/${{ env.SWUPDATE_CORE_IMAGE_NAME}}-${{ env.MACHINE }}.swu
-           retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+          path: ${{ env.builddir }}/artifact-staging/*
+          if-no-files-found: error
+          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
 
