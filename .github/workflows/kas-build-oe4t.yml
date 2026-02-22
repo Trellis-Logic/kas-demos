@@ -21,6 +21,7 @@ jobs:
   build:
     runs-on: self-hosted
     strategy:
+      fail-fast: false
       matrix:
         buildproj: [ swupdate-oe4t, swupdate-rootfs-overlay-oe4t ]
         branch: [ kirkstone, scarthgap-l4t-r35.x, scarthgap, master ]
@@ -78,15 +79,32 @@ jobs:
           : "${builddir:?builddir env var not set (expected from previous step)}"
 
           deploy_dir="${builddir}/build/tmp/deploy/images/${{ env.MACHINE }}"
-          staging_dir="${builddir}/artifact-staging"
+          staging_dir_tegra="${builddir}/artifact-staging-tegraflash"
+          staging_dir_swu="${builddir}/artifact-staging-swu"
 
-          mkdir -p "${staging_dir}"
+          mkdir -p "${staging_dir_tegra}" "${staging_dir_swu}"
 
           image_prefix="${SWUPDATE_CORE_IMAGE_NAME}-${MACHINE}"
 
           shopt -s nullglob
 
-          files=()
+          dump_deploy_dir() {
+            echo "Contents of deploy dir: ${deploy_dir}"
+            if [ -d "${deploy_dir}" ]; then
+              ls -la "${deploy_dir}" || true
+            else
+              echo "Deploy dir does not exist: ${deploy_dir}"
+              parent_dir="$(dirname "${deploy_dir}")"
+              if [ -d "${parent_dir}" ]; then
+                echo "Contents of parent dir: ${parent_dir}"
+                ls -la "${parent_dir}" || true
+              fi
+            fi
+          }
+
+          tegra_files=()
+          swu_files=()
+          missing=0
 
           # Only one of these should exist depending on branch age:
           # - newer branches: ${image_prefix}.rootfs.tegraflash.tar.*
@@ -103,30 +121,55 @@ jobs:
             tegra_candidates=("${tegra_plain_candidates[@]}")
           fi
 
-          # Prefer symlinks (Yocto often creates stable-name symlinks -> timestamped real files).
-          tegra_symlinks=()
-          tegra_regulars=()
-          for f in "${tegra_candidates[@]}"; do
-            if [ -L "${f}" ]; then
-              tegra_symlinks+=("${f}")
-            else
-              tegra_regulars+=("${f}")
-            fi
-          done
-          if [ ${#tegra_symlinks[@]} -gt 0 ]; then
-            files+=("${tegra_symlinks[@]}")
+          if [ ${#tegra_candidates[@]} -eq 0 ]; then
+            echo "ERROR: No tegraflash.tar.* found for ${image_prefix} under: ${deploy_dir}"
+            dump_deploy_dir
+            missing=1
           else
-            files+=("${tegra_regulars[@]}")
+            # Prefer symlinks (Yocto often creates stable-name symlinks -> timestamped real files).
+            tegra_symlinks=()
+            tegra_regulars=()
+            for f in "${tegra_candidates[@]}"; do
+              if [ -L "${f}" ]; then
+                tegra_symlinks+=("${f}")
+              else
+                tegra_regulars+=("${f}")
+              fi
+            done
+            if [ ${#tegra_symlinks[@]} -gt 0 ]; then
+              tegra_files+=("${tegra_symlinks[@]}")
+            else
+              tegra_files+=("${tegra_regulars[@]}")
+            fi
           fi
 
-          # For .swu, include the stable-name file if it exists (symlink or regular file).
-          swu_candidate="${deploy_dir}/${image_prefix}.swu"
-          if [ -e "${swu_candidate}" ] || [ -L "${swu_candidate}" ]; then
-            files+=("${swu_candidate}")
+          # SWU filename does not necessarily share the same prefix as the core image
+          # (e.g. swupdate-image-*.swu vs demo-image-base-*). Find any .swu in deploy_dir.
+          swu_candidates=("${deploy_dir}"/*.swu)
+
+          if [ ${#swu_candidates[@]} -eq 0 ]; then
+            echo "ERROR: No .swu found under: ${deploy_dir}"
+            dump_deploy_dir
+            missing=1
+          else
+            swu_symlinks=()
+            swu_regulars=()
+            for f in "${swu_candidates[@]}"; do
+              if [ -L "${f}" ]; then
+                swu_symlinks+=("${f}")
+              else
+                swu_regulars+=("${f}")
+              fi
+            done
+
+            if [ ${#swu_symlinks[@]} -gt 0 ]; then
+              swu_files+=("${swu_symlinks[@]}")
+            else
+              swu_files+=("${swu_regulars[@]}")
+            fi
           fi
 
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No tegraflash.tar.* or .swu files found for ${image_prefix} under: ${deploy_dir}"
+          if [ ${missing} -ne 0 ]; then
             echo "Directory tree (depth 6) for ${builddir}:"
             if command -v tree >/dev/null 2>&1; then
               tree -a -L 6 "${builddir}" || true
@@ -137,29 +180,47 @@ jobs:
             exit 1
           fi
 
-          for f in "${files[@]}"; do
-            base="$(basename "${f}")"
-            dest="${staging_dir}/${base}"
+          stage_files() {
+            local dest_dir="$1"; shift
+            local label="$1"; shift
+            local -a src_files=("$@")
 
-            if [ -e "${dest}" ]; then
-              echo "Duplicate artifact filename after flattening: ${base}"
-              echo "Source file: ${f}"
-              exit 1
-            fi
+            echo "Staging ${label} to ${dest_dir}"
+            for f in "${src_files[@]}"; do
+              base="$(basename "${f}")"
+              dest="${dest_dir}/${base}"
 
-            # -L/--dereference: if ${f} is a symlink, copy the linked-to file contents
-            # while keeping the symlink's filename in the staged artifact.
-            cp -vL "${f}" "${dest}"
-          done
+              if [ -e "${dest}" ]; then
+                echo "Duplicate artifact filename after flattening (${label}): ${base}"
+                echo "Source file: ${f}"
+                exit 1
+              fi
 
-          echo "Staged artifacts:"
-          ls -la "${staging_dir}"
+              # -L/--dereference: if ${f} is a symlink, copy the linked-to file contents
+              # while keeping the symlink's filename in the staged artifact.
+              cp -vL "${f}" "${dest}"
+            done
 
-      - name: Upload artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
+            echo "Staged ${label}:"
+            ls -la "${dest_dir}"
+          }
+
+          stage_files "${staging_dir_tegra}" tegraflash "${tegra_files[@]}"
+          stage_files "${staging_dir_swu}" swu "${swu_files[@]}"
+
+      - name: Upload tegraflash artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.buildproj }}-${{ matrix.branch }}-${{ env.SWUPDATE_CORE_IMAGE_NAME }}-${{ env.MACHINE }}
-          path: ${{ env.builddir }}/artifact-staging/*
+          name: ${{ matrix.buildproj }}-${{ matrix.branch }}-${{ env.SWUPDATE_CORE_IMAGE_NAME }}-${{ env.MACHINE }}-tegraflash
+          path: ${{ env.builddir }}/artifact-staging-tegraflash/*
+          if-no-files-found: error
+          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+      - name: Upload swu artifacts for ${{ matrix.buildproj }} branch ${{ matrix.branch }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.buildproj }}-${{ matrix.branch }}-${{ env.SWUPDATE_CORE_IMAGE_NAME }}-${{ env.MACHINE }}-swu
+          path: ${{ env.builddir }}/artifact-staging-swu/*
           if-no-files-found: error
           retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
 
